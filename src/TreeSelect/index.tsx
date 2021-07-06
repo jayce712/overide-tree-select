@@ -65,20 +65,17 @@ const TreeSelect = (props: TreeSelectProps) => {
         selectedNodeRef.current
       );
     }
-
-    const shouldInjectNodes = childNodes.length > 0;
-    const newValue = data.reduce((memo:string[], item) => {
-      memo.push(item.value);
-      if (item.value === selectedNodeRef.current && shouldInjectNodes) {
-        memo = memo.concat(childNodes);
+    const newValueSet = data.reduce((memo: Set<string>, item) => {
+      memo.add(item.value);
+      if (item.value === selectedNodeRef.current && childNodes.length > 0) {
+        childNodes.forEach((v) => {
+          memo.add(v);
+        });
       }
       return memo;
-    }, []);
-
-
-    console.log("data:", data, newValue);
-
-    // const newValue = data.map((item) => item?.value);
+    }, new Set<string>());
+    const newValue = Array.from(newValueSet);
+    selectedNodeRef.current = "";
     setValue(newValue);
     // @ts-ignore
     props?.onChange?.(newValue);
@@ -105,12 +102,8 @@ const TreeSelect = (props: TreeSelectProps) => {
       onSelect={onSelect}
       treeCheckable
       treeCheckStrictly
-      showCheckedStrategy={
-        AntdTreeSelect.SHOW_ALL
-        // value.indexOf("0") > -1
-        //   ? AntdTreeSelect.SHOW_CHILD
-        //   : AntdTreeSelect.SHOW_ALL
-      }
+      treeDefaultExpandAll
+      showCheckedStrategy={AntdTreeSelect.SHOW_ALL}
       searchPlaceholder={"Please select"}
       style={{ width: "100%" }}
     />
